@@ -76,6 +76,7 @@ class add_market_deposit (SQL_CONTROLLER):
     def set_market_deposit (self,newmp):
         self.market_deposit = newmp
     def add (self,market_deposit):
+        #Does Not Work ATM.
         try:
             con = cx_Oracle.connect('{}/{}@localhost:1521/XE'.format(self.ac, self.pwd))
             sql = con.cursor()
@@ -87,6 +88,30 @@ class add_market_deposit (SQL_CONTROLLER):
             print("There is a problem with Oracle", e,'\n')
     def __str__(self):
         return "\n This Function is still under developing!\n Please Paste the Following Qurey to the SQL Console! \n execute add_market_deposit({})\n".format(self.market_deposit)
+
+class add_spend_record (SQL_CONTROLLER):
+    def __init__(self,ac,pwd):
+        SQL_CONTROLLER.__init__(self,ac,pwd)
+        self.spend_value = int
+        self.spend_desc = str
+    def get_spend_value (self):
+        return self.spend_value
+    def get_spend_desc (self):
+        return self.spend_desc
+    def set_spend_value (self,sv):
+        self.spend_value = sv
+    def set_spend_desc (self,sd):
+        self.spend_desc = sd
+    def add (self,spend_value,spend_desc):
+        try:
+            con = cx_Oracle.connect('{}/{}@localhost:1521/XE'.format(self.ac, self.pwd))
+            sql = con.cursor()
+            sql.callproc('add_spend_record',[spend_value,spend_desc])
+            print("Data Has Been added!\n")
+            sql.close()
+            con.close()
+        except cx_Oracle.DatabaseError as e:
+            print("There is a problem with Oracle", e,'\n')
 
 clear = lambda: os.system('cls')
 
@@ -101,7 +126,9 @@ while True:
     print("2. Execute SQL Qureies (SELECT STATEMENT)\n")
     print("3. Add Record for Income_Value,Market_Value\n")
     print("4. Add Market Deposit Value\n")
-    print("9. Login With Other User\n")
+    print("5. Add Record for Spending\n")
+    print("8. Login With Other User\n")
+    print("9. Exit\n")
     while True:
         try:
             user_select = int(input("Select a function with Number!\n"))
@@ -134,10 +161,17 @@ while True:
 #        add_market_deposit_DB.add(user_market_deposit_value)
         add_market_deposit_DB.set_market_deposit(user_market_deposit_value)
         print(colored(add_market_deposit_DB,"red"))
-    elif user_select == 9:
+    elif user_select == 5:
+        user_spend_value = int(input("Type Your Spend Value\n"))
+        user_spend_desc = str(input("Type Your Spend Description\n"))
+        add_spend_record_DB = add_spend_record(login_account,login_password)
+        add_spend_record_DB.add(user_spend_value,user_spend_desc)
+    elif user_select == 8:
         login_account = input("Type Your Account Here!\n")
         login_password = input("Type Your Password Here!\n")
+    elif user_select == 9:
+        break
+    else:
+        print(colored("Wrong Input,Try a Again\n",'red'))
 
-
-#sql.close()
-#con.close()
+exit()

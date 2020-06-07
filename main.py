@@ -1,9 +1,8 @@
 import cx_Oracle
 import os
 from pprint import pprint
-from colorama import init
 from termcolor import colored
-init()
+
 # sql.execute(sqlquery) – – – -> to execute single query.
 # sql.execute(sqlqueries) – – – -> to execute a group of multiple sqlquery seperated by “;”
 
@@ -115,7 +114,7 @@ class add_spend_record (SQL_CONTROLLER):
 
 clear = lambda: os.system('cls')
 
-print("You Are Going To Login The Database!")
+print(colored("You Are Going To Login The Database!\n","green"))
 
 login_account = ''
 login_password = ''

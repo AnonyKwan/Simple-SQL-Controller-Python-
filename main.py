@@ -1,8 +1,9 @@
 import cx_Oracle
 import os
 from pprint import pprint
+from colorama import init
 from termcolor import colored
-
+init()
 # sql.execute(sqlquery) – – – -> to execute single query.
 # sql.execute(sqlqueries) – – – -> to execute a group of multiple sqlquery seperated by “;”
 

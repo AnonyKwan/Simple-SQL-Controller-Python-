@@ -130,7 +130,7 @@ while True:
     print("9. Exit\n")
     while True:
         try:
-            user_select = int(input(colored("Select a function with Number!\n",'green')))
+            user_select = int(input("Select a function with Number!\n"))
         except ValueError:
             print("WRONG INPUT,PLEASE TRY AGAIN!\n")
             continue
@@ -140,29 +140,29 @@ while True:
     if user_select == 0:
         login_account = 'ac_finance'
         login_password = 'QQWWEE123'
-        print("Login Successfully!\n")
+        print(colored("Login Successfully!\n",'red'))
     elif user_select == 1:
         DB = SQL_CONTROLLER(login_account, login_password)
         DB.connection_test()
     elif user_select == 2:
-        user_exec = str(input(colored("Type Your SQL Queries Here!",'red')))
+        user_exec = str(input("Type Your SQL Queries Here!"))
         execDB = SQL_EXEC(login_account, login_password)
         execDB.sql_execution(user_exec)
     elif user_select == 3:
-        user_income_value = int(input(colored("Type Your Income!\n",'green')))
-        user_income_desc = str(input(colored("Type Your Income Description!\n",'green')))
+        user_income_value = int(input("Type Your Income!\n"))
+        user_income_desc = str(input("Type Your Income Description!\n"))
         user_market_value = float(input("Type Your Stocks Value!\n"))
         add_record_DB = add_record(login_account,login_password)
         add_record_DB.add(user_income_value,user_income_desc,user_market_value)
     elif user_select == 4:
-        user_market_deposit_value = int(input(colored("Type Your Deposit Value To The Market!\n",'green')))
+        user_market_deposit_value = int(input("Type Your Deposit Value To The Market!\n"))
         add_market_deposit_DB = add_market_deposit(login_account,login_password)
 #        add_market_deposit_DB.add(user_market_deposit_value)
         add_market_deposit_DB.set_market_deposit(user_market_deposit_value)
         print(colored(add_market_deposit_DB,"red"))
     elif user_select == 5:
-        user_spend_value = int(input(colored("Type Your Spend Value\n",'green')))
-        user_spend_desc = str(input(colored("Type Your Spend Description\n",'green')))
+        user_spend_value = int(input("Type Your Spend Value\n"))
+        user_spend_desc = str(input("Type Your Spend Description\n"))
         add_spend_record_DB = add_spend_record(login_account,login_password)
         add_spend_record_DB.add(user_spend_value,user_spend_desc)
     elif user_select == 8:

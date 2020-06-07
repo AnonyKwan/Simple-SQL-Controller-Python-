@@ -42,7 +42,7 @@ class SQL_EXEC (SQL_CONTROLLER):
             sql.execute(exec)
             result = sql.fetchall()
             for _ in result:
-                pprint(_)
+                pprint(_,'\n')
             print(colored("The SQL is executed!\n",'red'))
             sql.close()
             con.close()
@@ -60,7 +60,7 @@ class add_record (SQL_CONTROLLER):
             con = cx_Oracle.connect('{}/{}@localhost:1521/XE'.format(self.ac, self.pwd))
             sql = con.cursor()
             sql.callproc('add_record',[income_value,income_desc,market_value])
-            print ("Data Has Been added!\n")
+            print (colored("Data Has Been added!\n",'red'))
             sql.close()
             con.close()
         except cx_Oracle.DatabaseError as e:

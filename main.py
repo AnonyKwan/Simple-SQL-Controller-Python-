@@ -115,9 +115,10 @@ class add_spend_record (SQL_CONTROLLER):
 clear = lambda: os.system('cls')
 
 print(colored("You Are Going To Login The Database!\n","green"))
+print(colored("Default Login AC_FINANCE!\n",'red'))
 
-login_account = ''
-login_password = ''
+login_account = 'ac_finance'
+login_password = 'QQWWEE123'
 
 while True:
     print("0. Login With AC_FINANCE\n")
@@ -145,7 +146,7 @@ while True:
         DB = SQL_CONTROLLER(login_account, login_password)
         DB.connection_test()
     elif user_select == 2:
-        user_exec = str(input("Type Your SQL Queries Here!"))
+        user_exec = str(input("Type Your SQL Queries Here!\n"))
         execDB = SQL_EXEC(login_account, login_password)
         execDB.sql_execution(user_exec)
     elif user_select == 3:

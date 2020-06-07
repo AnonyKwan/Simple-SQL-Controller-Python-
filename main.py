@@ -23,11 +23,11 @@ class SQL_CONTROLLER (object):
         try:
             con = cx_Oracle.connect('{}/{}@localhost:1521/XE'.format(self.ac,self.pwd))
             sql = con.cursor()
-            print("THE DATEBASE IS CONNECTED!\n")
+            print(colored("THE DATEBASE IS CONNECTED!\n",'red'))
             sql.close()
             con.close()
         except cx_Oracle.DatabaseError as e:
-            print ("There is a problem with Oracle", e,'n')
+            print(colored("There is a problem with Oracle", e,'\n','red'))
     def __str__(self):
         return "This is SQL Controller Created By A/K."
 
@@ -43,12 +43,11 @@ class SQL_EXEC (SQL_CONTROLLER):
             result = sql.fetchall()
             for _ in result:
                 pprint(_)
-            print("The SQL is executed!\n")
+            print(colored("The SQL is executed!\n",'red'))
             sql.close()
             con.close()
         except cx_Oracle.DatabaseError as e:
-            print("There is a problem with Oracle", e,'\n')
-            print ("SQL:" ,exec)
+            print(colored("There is a problem with Oracle", e,'\n','red'))
 
 class add_record (SQL_CONTROLLER):
     def __init__(self,ac,pwd):
@@ -65,7 +64,7 @@ class add_record (SQL_CONTROLLER):
             sql.close()
             con.close()
         except cx_Oracle.DatabaseError as e:
-            print("There is a problem with Oracle", e,'\n')
+            print(colored("There is a problem with Oracle", e,'\n','red'))
 
 class add_market_deposit (SQL_CONTROLLER):
     def __init__(self,ac,pwd):
@@ -85,9 +84,9 @@ class add_market_deposit (SQL_CONTROLLER):
             sql.close()
             con.close()
         except cx_Oracle.DatabaseError as e:
-            print("There is a problem with Oracle", e,'\n')
+            print(colored("There is a problem with Oracle", e,'\n','red'))
     def __str__(self):
-        return "\n This Function is still under developing!\n Please Paste the Following Qurey to the SQL Console! \n execute add_market_deposit({})\n".format(self.market_deposit)
+        return "\n This Function is still under developing!\n Please Paste the Following Qurey to the SQL Console! \n \n execute add_market_deposit({})\n".format(self.market_deposit)
 
 class add_spend_record (SQL_CONTROLLER):
     def __init__(self,ac,pwd):
@@ -107,11 +106,11 @@ class add_spend_record (SQL_CONTROLLER):
             con = cx_Oracle.connect('{}/{}@localhost:1521/XE'.format(self.ac, self.pwd))
             sql = con.cursor()
             sql.callproc('add_spend_record',[spend_value,spend_desc])
-            print("Data Has Been added!\n")
+            print(colored("Data Has Been added!\n",'red'))
             sql.close()
             con.close()
         except cx_Oracle.DatabaseError as e:
-            print("There is a problem with Oracle", e,'\n')
+            print(colored("There is a problem with Oracle", e,'\n','red'))
 
 clear = lambda: os.system('cls')
 
@@ -131,7 +130,7 @@ while True:
     print("9. Exit\n")
     while True:
         try:
-            user_select = int(input("Select a function with Number!\n"))
+            user_select = int(input(colored("Select a function with Number!\n",'green')))
         except ValueError:
             print("WRONG INPUT,PLEASE TRY AGAIN!\n")
             continue
@@ -146,24 +145,24 @@ while True:
         DB = SQL_CONTROLLER(login_account, login_password)
         DB.connection_test()
     elif user_select == 2:
-        user_exec = str(input("Type Your SQL Queries Here!"))
+        user_exec = str(input(colored("Type Your SQL Queries Here!",'red')))
         execDB = SQL_EXEC(login_account, login_password)
         execDB.sql_execution(user_exec)
     elif user_select == 3:
-        user_income_value = int(input("Type Your Income!\n"))
-        user_income_desc = str(input("Type Your Income Description!\n"))
+        user_income_value = int(input(colored("Type Your Income!\n",'green')))
+        user_income_desc = str(input(colored("Type Your Income Description!\n",'green')))
         user_market_value = float(input("Type Your Stocks Value!\n"))
         add_record_DB = add_record(login_account,login_password)
         add_record_DB.add(user_income_value,user_income_desc,user_market_value)
     elif user_select == 4:
-        user_market_deposit_value = int(input("Type Your Deposit Value To The Market!\n"))
+        user_market_deposit_value = int(input(colored("Type Your Deposit Value To The Market!\n",'green')))
         add_market_deposit_DB = add_market_deposit(login_account,login_password)
 #        add_market_deposit_DB.add(user_market_deposit_value)
         add_market_deposit_DB.set_market_deposit(user_market_deposit_value)
         print(colored(add_market_deposit_DB,"red"))
     elif user_select == 5:
-        user_spend_value = int(input("Type Your Spend Value\n"))
-        user_spend_desc = str(input("Type Your Spend Description\n"))
+        user_spend_value = int(input(colored("Type Your Spend Value\n",'green')))
+        user_spend_desc = str(input(colored("Type Your Spend Description\n",'green')))
         add_spend_record_DB = add_spend_record(login_account,login_password)
         add_spend_record_DB.add(user_spend_value,user_spend_desc)
     elif user_select == 8:

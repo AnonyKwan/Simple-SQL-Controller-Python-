@@ -1,0 +1,183 @@
+CREATE TABLE income (
+    income_index VARCHAR2(255) PRIMARY KEY,
+    income_date DATE DEFAULT CURRENT_DATE NOT NULL,
+    income NUMBER NOT NULL,
+    income_desc VARCHAR2(255) NOT NULL
+);
+CREATE TABLE money_to_deposit (
+    income_index VARCHAR2(255),
+    deposit_date DATE DEFAULT CURRENT_DATE NOT NULL,
+    money_to_bank NUMBER NOT NULL,
+    CONSTRAINT FK_money_deposit_income_index FOREIGN KEY (income_index)
+        REFERENCES income(income_index)
+);
+CREATE TABLE money_to_market (
+  deposit_index VARCHAR2(255) PRIMARY KEY,
+  income_index VARCHAR2(255),
+  deposit_date DATE DEFAULT CURRENT_DATE NOT NULL,
+  money_to_etf NUMBER,
+  money_to_stock NUMBER,
+  invest_status CHAR(1) DEFAULT 0
+      CHECK ( invest_status = 0
+                    OR
+              invest_status = 1),
+  CONSTRAINT FK_market_deposit_income_index FOREIGN KEY (income_index)
+        REFERENCES income(income_index)
+);
+CREATE TABLE stock (
+    income_index VARCHAR2(255),
+    deposit_index VARCHAR2(255),
+    market_date DATE DEFAULT CURRENT_DATE NOT NULL,
+    market_deposit_value NUMBER,
+    market_value NUMBER NOT NULL,
+    CONSTRAINT FK_stock_income_index FOREIGN KEY (income_index)
+        REFERENCES income(income_index),
+    CONSTRAINT FK_stock_deposit_index FOREIGN KEY (deposit_index)
+        REFERENCES money_to_market(deposit_index)
+);
+CREATE TABLE money_spend (
+    spend_date DATE DEFAULT CURRENT_DATE NOT NULL,
+    spend_value NUMBER NOT NULL,
+    spend_desc VARCHAR2(255) NOT NULL
+);
+
+CREATE SEQUENCE income_index_seq
+    MINVALUE 1
+    START WITH 1
+    INCREMENT BY 1
+    NOCACHE;
+CREATE SEQUENCE deposit_index_seq
+    MINVALUE 1
+    START WITH 1
+    INCREMENT BY 1
+    NOCACHE;
+
+CREATE OR REPLACE PROCEDURE add_record (
+    in_income_value IN income.income%type,
+    in_income_desc IN income.income_desc%type,
+    in_market_value IN stock.market_value%type
+) IS
+    V_INCOME_INDEX VARCHAR2(255);
+    V_DEPOSIT_INDEX VARCHAR2(255);
+BEGIN
+    SELECT 'INCOME'||'_'||CURRENT_DATE||'_'||LPAD(income_index_seq.nextval,5,'0')
+    INTO V_INCOME_INDEX
+    FROM dual;
+
+    SELECT 'Market_Deposit'||'_'||CURRENT_DATE||'_'||LPAD(deposit_index_seq.nextval,5,'0')
+    INTO V_DEPOSIT_INDEX
+    FROM dual;
+
+    INSERT INTO income (income_index,income,income_desc)
+    SELECT V_INCOME_INDEX,in_income_value,in_income_desc
+    FROM dual;
+
+    INSERT INTO money_to_market (income_index,deposit_index,money_to_etf,money_to_stock)
+    SELECT V_INCOME_INDEX,V_DEPOSIT_INDEX,income * 0.1,income * 0.2
+    FROM dual,income
+    WHERE income.income_index = V_INCOME_INDEX;
+
+    INSERT INTO money_to_deposit (income_index, money_to_bank)
+    SELECT V_INCOME_INDEX,income - ((income * 0.1)+(income * 0.2))
+    FROM dual,income
+    WHERE income.income_index = V_INCOME_INDEX;
+
+    INSERT INTO stock(INCOME_INDEX, MARKET_VALUE)
+    SELECT V_INCOME_INDEX,in_market_value
+    FROM dual;
+
+    COMMIT;
+EXCEPTION
+    WHEN OTHERS THEN
+    DBMS_OUTPUT.PUT_LINE('SOMETHING WRONG!');
+        ROLLBACK;
+END;
+/
+
+CREATE OR REPLACE PROCEDURE add_market_deposit(
+    in_market_deposit IN stock.market_deposit_value%type
+) IS
+    V_DEPOSIT_INDEX VARCHAR2(255);
+    V_INCOME_INDEX VARCHAR2(255);
+BEGIN
+
+    SELECT 'INCOME'||'_'||CURRENT_DATE||'_'||LPAD(income_index_seq.currval,5,'0')
+    INTO V_INCOME_INDEX
+    FROM dual;
+
+    SELECT 'Market_Deposit'||'_'||CURRENT_DATE||'_'||LPAD(deposit_index_seq.currval,5,'0')
+    INTO V_DEPOSIT_INDEX
+    FROM dual;
+
+    UPDATE stock
+    SET deposit_index = V_DEPOSIT_INDEX,
+        market_deposit_value = in_market_deposit
+    WHERE income_index = V_INCOME_INDEX;
+
+    UPDATE money_to_market
+    SET invest_status = 1
+    WHERE invest_status = 0;
+
+    COMMIT;
+EXCEPTION
+    WHEN OTHERS THEN
+    DBMS_OUTPUT.PUT_LINE('SOMETHING WRONG!');
+        ROLLBACK;
+END;
+/
+
+CREATE OR REPLACE PROCEDURE add_spend_record(
+    in_spend_value IN money_spend.spend_value%type,
+    in_spend_desc IN money_spend.spend_desc%type
+) IS
+BEGIN
+    INSERT INTO money_spend(SPEND_VALUE, SPEND_DESC)
+    SELECT in_spend_value,in_spend_desc
+    FROM dual;
+
+    COMMIT;
+EXCEPTION
+    WHEN OTHERS THEN
+    DBMS_OUTPUT.PUT_LINE('SOMETHING WRONG!');
+        ROLLBACK;
+end;
+/
+
+CREATE VIEW view_need_deposit AS
+SELECT SUM(money_to_etf) AS "NO-DEPOSIT-ETFs",SUM(money_to_stock) AS "NO-DEPOSIT-STOCKs",SUM(money_to_etf) + SUM(money_to_stock) AS "TOTAL-DEPOSIT-NEED"
+FROM money_to_market
+WHERE invest_status = '0';
+
+SELECT * FROM MONEY_TO_DEPOSIT;
+SELECT * FROM income;
+SELECT * FROM money_to_market;
+SELECT * FROM stock;
+SELECT * FROM money_spend;
+
+SET SERVEROUT ON
+
+alter sequence deposit_index_seq restart start with 1;
+alter sequence income_index_seq restart start with 1;
+
+execute add_record(200,'TEST',1900)
+
+execute add_market_deposit('360')
+
+EXECUTE add_spend_record(279,'Xbox Elite 2')
+
+update money_to_deposit
+set MONEY_TO_BANK = 30000
+where income_index = 'INCOME_07-JUN-20_00001';
+
+update money_to_market
+set money_to_etf = 0, money_to_stock = 0, invest_status = 1
+where income_index = 'INCOME_07-JUN-20_00001';
+
+SELECT * FROM view_need_deposit;
+
+SELECT * FROM income order by income_index;;
+SELECT * FROM money_to_market order by income_index;;
+SELECT * FROM MONEY_TO_DEPOSIT order by income_index;;
+SELECT * FROM stock order by income_index;;
+SELECT * FROM money_spend order by spend_date;
+
